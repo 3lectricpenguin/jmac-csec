@@ -1,0 +1,235 @@
+---
+// Footer.astro
+---
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-grid">
+      <!-- Brand column -->
+      <div class="footer-brand">
+        <div class="brand-logo">
+          <img src="/image_e8b0fd.jpg" alt="JCM Logo" class="brand-img" />
+          <span class="brand-name">JCM <span class="brand-highlight">IT SOLUTIONS</span></span>
+        </div>
+        <p class="brand-desc">
+          Defensive web engineering and enterprise-grade penetration testing. Securing digital infrastructure, globally.
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-links">
+        <h4 class="footer-title">COMPLIANCE SECTORS</h4>
+        <ul class="links-list">
+          <li><a href="#services">Web Systems</a></li>
+          <li><a href="#services">Security Auditing</a></li>
+          <li><a href="#services">Penetration Testing</a></li>
+          <li><a href="#console">Interactive Sandbox</a></li>
+        </ul>
+      </div>
+
+      <!-- Methodologies / Trust factors -->
+      <div class="footer-methodology">
+        <h4 class="footer-title">STANDARDS & FRAMEWORKS</h4>
+        <div class="standards-grid">
+          <span class="standard-badge">OWASP TOP 10</span>
+          <span class="standard-badge">CIS CONTROLS</span>
+          <span class="standard-badge">NIST CSF</span>
+          <span class="standard-badge">SOC2 ALIGNED</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom copyright / Status -->
+    <div class="footer-bottom">
+      <div class="copyright">
+        &copy; {new Date().getFullYear()} JCM IT Solutions. Professional-Grade Security & Engineering.
+      </div>
+      <div class="network-status">
+        <span class="status-indicator-pulse"></span>
+        <span>SECURE NODE ACTIVE [HTTPS/TLS 1.3]</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    background-color: var(--bg-primary);
+    border-top: 1px solid rgba(163, 230, 53, 0.1);
+    padding: 5rem 2rem 3rem 2rem;
+    overflow: hidden;
+  }
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+  }
+
+  .footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .brand-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid rgba(163, 230, 53, 0.2);
+  }
+
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+  }
+
+  .brand-highlight {
+    color: var(--accent-green);
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+  }
+
+  .brand-desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    max-width: 320px;
+  }
+
+  /* Footer title */
+  .footer-title {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+
+  .footer-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 25px;
+    height: 1.5px;
+    background: var(--accent-green);
+  }
+
+  .links-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .links-list a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .links-list a:hover {
+    color: var(--accent-green);
+    transform: translateX(3px);
+    display: inline-block;
+  }
+
+  /* Standards */
+  .standards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .standard-badge {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-family: monospace;
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: var(--text-secondary);
+    text-align: center;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+  }
+
+  .standard-badge:hover {
+    border-color: rgba(163, 230, 53, 0.3);
+    color: var(--accent-green);
+    background: rgba(163, 230, 53, 0.03);
+    box-shadow: 0 0 10px rgba(163, 230, 53, 0.05);
+  }
+
+  /* Bottom bar */
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .network-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .status-indicator-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-green);
+    box-shadow: 0 0 6px var(--accent-green);
+    animation: statusPulse 2s infinite;
+  }
+
+  @keyframes statusPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* Responsive styling */
+  @media (max-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+    }
+    
+    .footer-bottom {
+      flex-direction: column;
+      gap: 1.5rem;
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+// Header.astro
+---
+<header class="site-header">
+  <div class="header-container">
+    <a href="/" class="logo-link">
+      <div class="logo-wrapper">
+        <img src="/image_e8b0fd.jpg" alt="JCM IT Solutions Logo" class="logo-img" />
+        <div class="logo-glow"></div>
+      </div>
+      <div class="logo-text">
+        <span class="logo-brand">JCM</span>
+        <span class="logo-sub">IT SOLUTIONS</span>
+      </div>
+    </a>
+    <nav class="nav-menu">
+      <a href="#services" class="nav-link">
+        <span class="nav-number">01.</span> Services
+      </a>
+      <a href="#console" class="nav-link">
+        <span class="nav-number">02.</span> Sandbox
+      </a>
+      <a href="#contact" class="nav-link">
+        <span class="nav-number">03.</span> Contact
+      </a>
+    </nav>
+    <div class="header-actions">
+      <a href="#contact" class="btn-cyber-sm">
+        <span class="btn-text">Audit System</span>
+        <span class="btn-glitch-line"></span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 11, 16, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(163, 230, 53, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  .header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    text-decoration: none;
+  }
+
+  .logo-wrapper {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(163, 230, 53, 0.3);
+    box-shadow: 0 0 10px rgba(163, 230, 53, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .logo-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    box-shadow: inset 0 0 8px rgba(163, 230, 53, 0.4);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .logo-link:hover .logo-wrapper {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 15px rgba(163, 230, 53, 0.35);
+  }
+
+  .logo-link:hover .logo-glow {
+    opacity: 1;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo-brand {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 3px;
+    color: var(--accent-green);
+    margin-top: 2px;
+    text-shadow: 0 0 8px rgba(163, 230, 53, 0.3);
+  }
+
+  .nav-menu {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  .nav-link {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .nav-number {
+    color: var(--accent-green);
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .nav-link:hover {
+    color: var(--text-primary);
+    text-shadow: 0 0 8px rgba(163, 230, 53, 0.2);
+    transform: translateY(-1px);
+  }
+
+  /* Cyber Button Small */
+  .btn-cyber-sm {
+    position: relative;
+    display: inline-block;
+    padding: 0.5rem 1.2rem;
+    background: transparent;
+    border: 1px solid var(--accent-green);
+    border-radius: 4px;
+    color: var(--accent-green);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(163, 230, 53, 0.1);
+  }
+
+  .btn-cyber-sm::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(163, 230, 53, 0.2),
+      transparent
+    );
+    transition: all 0.5s ease;
+  }
+
+  .btn-cyber-sm:hover::before {
+    left: 100%;
+  }
+
+  .btn-cyber-sm:hover {
+    background: rgba(163, 230, 53, 0.1);
+    box-shadow: 0 0 15px rgba(163, 230, 53, 0.3);
+    color: #fff;
+    border-color: #fff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Responsive styling */
+  @media (max-width: 768px) {
+    .nav-menu {
+      display: none; /* Can implement mobile menu or just hide for now */
+    }
+    
+    .header-container {
+      padding: 1rem;
+    }
+  }
+</style>

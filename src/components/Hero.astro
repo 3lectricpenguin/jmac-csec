@@ -1,0 +1,632 @@
+---
+// Hero.astro
+---
+<section class="hero-section">
+  <!-- Cyber Background Elements -->
+  <div class="cyber-grid"></div>
+  <div class="circuit-bg">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="circuit-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="rgba(163,230,53,0.01)" />
+          <stop offset="50%" stop-color="rgba(163,230,53,0.08)" />
+          <stop offset="100%" stop-color="rgba(163,230,53,0.01)" />
+        </linearGradient>
+      </defs>
+      <!-- Circuit paths representing logo lines -->
+      <path d="M 50,100 L 150,100 L 200,150 L 200,300 M 350,100 L 400,150 L 500,150" stroke="url(#circuit-glow)" stroke-width="1.5" fill="none" />
+      <path d="M 100,500 L 200,500 L 250,450 L 250,350 M 900,200 L 800,200 L 750,250" stroke="url(#circuit-glow)" stroke-width="1.5" fill="none" />
+      <path d="M 850,600 L 750,600 L 700,550 L 700,450" stroke="url(#circuit-glow)" stroke-width="1.5" fill="none" />
+    </svg>
+  </div>
+
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">SYSTEMS ACTIVE // FIREWALL ENGAGED</span>
+      </div>
+      
+      <h1 class="hero-title">
+        High-Performance <br/>
+        <span class="text-gradient">Web Engineering</span> & Cyber Defense
+      </h1>
+      
+      <p class="hero-description">
+        We build bulletproof, ultra-fast web architectures and perform enterprise-grade penetration testing. JCM IT Solutions secures your digital perimeter while accelerating user engagement.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="#contact" class="btn-cyber-primary">
+          <span class="btn-glow-container">
+            <span class="btn-glow"></span>
+          </span>
+          <span class="btn-label">Book Security Audit</span>
+        </a>
+        <a href="#console" class="btn-cyber-secondary">
+          <span class="btn-label">Explore Sandbox</span>
+        </a>
+      </div>
+
+      <div class="hero-features">
+        <div class="hero-feat-item">
+          <span class="feat-val">99.9%</span>
+          <span class="feat-lbl">Uptime Standard</span>
+        </div>
+        <div class="hero-feat-item">
+          <span class="feat-val">&lt; 100ms</span>
+          <span class="feat-lbl">Response Latency</span>
+        </div>
+        <div class="hero-feat-item">
+          <span class="feat-val">ZERO</span>
+          <span class="feat-lbl">Breach History</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Microchip Centerpiece -->
+    <div class="hero-visual">
+      <div class="chip-container">
+        <!-- Pins around the chip -->
+        <div class="chip-pins top-pins">
+          {Array.from({ length: 12 }).map((_, i) => <div class="pin" style={`--delay: ${i * 0.1}s`}></div>)}
+        </div>
+        <div class="chip-pins bottom-pins">
+          {Array.from({ length: 12 }).map((_, i) => <div class="pin" style={`--delay: ${i * 0.1}s`}></div>)}
+        </div>
+        <div class="chip-pins left-pins">
+          {Array.from({ length: 10 }).map((_, i) => <div class="pin" style={`--delay: ${i * 0.15}s`}></div>)}
+        </div>
+        <div class="chip-pins right-pins">
+          {Array.from({ length: 10 }).map((_, i) => <div class="pin" style={`--delay: ${i * 0.15}s`}></div>)}
+        </div>
+
+        <!-- The Microchip Body -->
+        <div class="chip-body">
+          <div class="chip-inner-glow"></div>
+          <div class="chip-metallic-texture"></div>
+          
+          <!-- Circuit traces on the chip -->
+          <svg class="chip-svg-traces" viewBox="0 0 200 200">
+            <path d="M 20,40 L 60,40 L 80,60" stroke="rgba(163, 230, 53, 0.2)" stroke-width="1" fill="none" />
+            <path d="M 180,40 L 140,40 L 120,60" stroke="rgba(163, 230, 53, 0.2)" stroke-width="1" fill="none" />
+            <path d="M 20,160 L 60,160 L 80,140" stroke="rgba(163, 230, 53, 0.2)" stroke-width="1" fill="none" />
+            <path d="M 180,160 L 140,160 L 120,140" stroke="rgba(163, 230, 53, 0.2)" stroke-width="1" fill="none" />
+            <path d="M 100,20 L 100,50" stroke="rgba(163, 230, 53, 0.2)" stroke-width="1" fill="none" />
+            <path d="M 100,180 L 100,150" stroke="rgba(163, 230, 53, 0.2)" stroke-width="1" fill="none" />
+          </svg>
+
+          <!-- Core of the chip -->
+          <div class="chip-core">
+            <div class="core-jcm">JCM</div>
+            <div class="core-tech">IT SEC</div>
+            <div class="core-glow-layer"></div>
+          </div>
+
+          <!-- Live telemetry reads -->
+          <div class="chip-telemetry">
+            <div class="telemetry-row">
+              <span>FW_STATUS</span>
+              <span class="tele-val val-green">ACTIVE</span>
+            </div>
+            <div class="telemetry-row">
+              <span>SCAN_PROC</span>
+              <span class="tele-val" id="tele-scan">100%</span>
+            </div>
+            <div class="telemetry-row">
+              <span>SYS_TEMP</span>
+              <span class="tele-val" id="tele-temp">38°C</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Simple simulation of chip state
+  const scanEl = document.getElementById('tele-scan');
+  const tempEl = document.getElementById('tele-temp');
+  
+  if (scanEl && tempEl) {
+    setInterval(() => {
+      // Random temperature fluctuation
+      const temp = Math.floor(36 + Math.random() * 6);
+      tempEl.textContent = `${temp}°C`;
+
+      // Cycle load process
+      const load = Math.floor(70 + Math.random() * 30);
+      scanEl.textContent = `${load}%`;
+      if (load > 90) {
+        scanEl.className = 'tele-val val-warn';
+      } else {
+        scanEl.className = 'tele-val val-green';
+      }
+    }, 2000);
+  }
+</script>
+
+<style>
+  .hero-section {
+    position: relative;
+    padding: 8rem 2rem 6rem 2rem;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: var(--bg-primary);
+  }
+
+  .cyber-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(163, 230, 53, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(163, 230, 53, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    mask-image: radial-gradient(circle at 60% 40%, black, transparent 75%);
+    -webkit-mask-image: radial-gradient(circle at 60% 40%, black, transparent 75%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .circuit-bg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 4rem;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(163, 230, 53, 0.05);
+    border: 1px solid rgba(163, 230, 53, 0.2);
+    border-radius: 4px;
+    margin-bottom: 2rem;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--accent-green);
+    box-shadow: 0 0 8px var(--accent-green);
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+
+  .status-text {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent-green);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+  }
+
+  .text-gradient {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(163, 230, 53, 0.2);
+    background: linear-gradient(135deg, #fff 30%, var(--accent-green) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-description {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 580px;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+  }
+
+  /* Cyber Button Primary */
+  .btn-cyber-primary {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2.2rem;
+    background: var(--accent-green);
+    color: #060814;
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--accent-green);
+  }
+
+  .btn-cyber-primary:hover {
+    transform: translateY(-2px);
+    background: #000;
+    color: var(--accent-green);
+    border-color: var(--accent-green);
+    box-shadow: 0 0 25px rgba(163, 230, 53, 0.45);
+  }
+
+  .btn-glow-container {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .btn-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-cyber-primary:hover .btn-glow {
+    opacity: 1;
+    animation: rotateGlow 3s linear infinite;
+  }
+
+  /* Cyber Button Secondary */
+  .btn-cyber-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2.2rem;
+    background: transparent;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  .btn-cyber-secondary:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    background: rgba(163, 230, 53, 0.05);
+    box-shadow: 0 0 15px rgba(163, 230, 53, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .hero-features {
+    display: flex;
+    gap: 3rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 2rem;
+    width: 100%;
+  }
+
+  .hero-feat-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .feat-val {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .feat-lbl {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* Microchip Styling */
+  .hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .chip-container {
+    position: relative;
+    width: 320px;
+    height: 320px;
+  }
+
+  .chip-body {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 280px;
+    height: 280px;
+    background: linear-gradient(135deg, #1c2030 0%, #0d0f17 100%);
+    border: 1px solid rgba(163, 230, 53, 0.25);
+    border-radius: 16px;
+    box-shadow: 
+      0 10px 40px rgba(0,0,0,0.6),
+      0 0 30px rgba(163, 230, 53, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    z-index: 5;
+  }
+
+  .chip-inner-glow {
+    position: absolute;
+    inset: 1px;
+    border-radius: 15px;
+    box-shadow: inset 0 0 15px rgba(163, 230, 53, 0.15);
+    pointer-events: none;
+  }
+
+  .chip-metallic-texture {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .chip-svg-traces {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .chip-core {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, #273045 0%, #151824 100%);
+    border: 1.5px solid var(--accent-green);
+    border-radius: 12px;
+    box-shadow: 
+      0 0 20px rgba(163, 230, 53, 0.25),
+      inset 0 0 15px rgba(163, 230, 53, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    animation: corePulse 4s infinite ease-in-out;
+  }
+
+  .core-jcm {
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+    line-height: 1;
+  }
+
+  .core-tech {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent-green);
+    margin-top: 4px;
+    text-shadow: 0 0 5px rgba(163, 230, 53, 0.5);
+  }
+
+  .core-glow-layer {
+    position: absolute;
+    inset: -2px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.4);
+    opacity: 0.15;
+    animation: coreRing 2s infinite linear;
+  }
+
+  .chip-telemetry {
+    width: 80%;
+    font-family: monospace;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1rem;
+  }
+
+  .telemetry-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .tele-val {
+    font-weight: bold;
+    color: var(--text-primary);
+  }
+
+  .val-green {
+    color: var(--accent-green);
+    text-shadow: 0 0 4px rgba(163, 230, 53, 0.3);
+  }
+
+  .val-warn {
+    color: #f59e0b;
+    text-shadow: 0 0 4px rgba(245, 158, 11, 0.3);
+  }
+
+  /* Chip pins */
+  .chip-pins {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  .top-pins {
+    top: 0;
+    left: 40px;
+    right: 40px;
+    height: 20px;
+    flex-direction: row;
+  }
+
+  .bottom-pins {
+    bottom: 0;
+    left: 40px;
+    right: 40px;
+    height: 20px;
+    flex-direction: row;
+  }
+
+  .left-pins {
+    left: 0;
+    top: 40px;
+    bottom: 40px;
+    width: 20px;
+    flex-direction: column;
+  }
+
+  .right-pins {
+    right: 0;
+    top: 40px;
+    bottom: 40px;
+    width: 20px;
+    flex-direction: column;
+  }
+
+  .pin {
+    background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(163, 230, 53, 0.3));
+    border: 1px solid rgba(163, 230, 53, 0.2);
+    border-radius: 1px;
+    transition: background 0.3s;
+  }
+
+  .top-pins .pin, .bottom-pins .pin {
+    width: 6px;
+    height: 20px;
+    background: linear-gradient(to bottom, #2b3040, #141722);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+
+  .left-pins .pin, .right-pins .pin {
+    width: 20px;
+    height: 6px;
+    background: linear-gradient(to right, #2b3040, #141722);
+    box-shadow: inset 1px 0 0 rgba(255,255,255,0.05);
+  }
+
+  /* Animations */
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes corePulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(163, 230, 53, 0.2), inset 0 0 15px rgba(163, 230, 53, 0.15);
+      border-color: rgba(163, 230, 53, 0.8);
+    }
+    50% {
+      box-shadow: 0 0 35px rgba(163, 230, 53, 0.4), inset 0 0 25px rgba(163, 230, 53, 0.35);
+      border-color: var(--accent-green);
+    }
+  }
+
+  @keyframes coreRing {
+    0% { transform: scale(1); opacity: 0.4; }
+    100% { transform: scale(1.15); opacity: 0; }
+  }
+
+  @keyframes rotateGlow {
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Responsive breakpoints */
+  @media (max-width: 992px) {
+    .hero-container {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      text-align: center;
+    }
+    
+    .hero-content {
+      align-items: center;
+    }
+    
+    .hero-buttons {
+      justify-content: center;
+    }
+    
+    .hero-features {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .hero-title {
+      font-size: 2.3rem;
+    }
+    
+    .hero-features {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .chip-container {
+      width: 280px;
+      height: 280px;
+    }
+    
+    .chip-body {
+      width: 240px;
+      height: 240px;
+    }
+  }
+</style>
