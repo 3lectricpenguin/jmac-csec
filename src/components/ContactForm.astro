@@ -74,37 +74,38 @@
       <!-- Contact Form -->
       <div class="contact-form-container">
         <form class="secure-form" id="secure-contact-form" action="https://submit.jotform.com/submit/261798536543066" method="POST">
-          <!-- Jotform ID -->
+          <!-- Jotform ID & Helper fields -->
           <input type="hidden" name="formID" value="261798536543066" />
+          <input type="hidden" class="simple_spc" id="simple_spc" name="simple_spc" value="261798536543066-261798536543066" />
           
           <div class="form-row split">
             <div class="form-group">
               <label for="form-name">YOUR NAME / COMPANY</label>
-              <input type="text" id="form-name" name="form-name" placeholder="John Doe or Acme Corp" required />
+              <input type="text" id="form-name" name="q5_yourName" placeholder="John Doe or Acme Corp" required />
               <span class="focus-line"></span>
             </div>
             <div class="form-group">
               <label for="form-email">YOUR EMAIL ADDRESS</label>
-              <input type="email" id="form-email" name="form-email" placeholder="you@domain.com" required />
+              <input type="email" id="form-email" name="q6_yourEmail" placeholder="you@domain.com" required />
               <span class="focus-line"></span>
             </div>
           </div>
 
           <div class="form-group">
             <label for="form-protocol">WHAT DO YOU NEED HELP WITH?</label>
-            <select id="form-protocol" name="form-protocol" required>
+            <select id="form-protocol" name="q8_whatDo" required>
               <option value="" disabled selected>Select a service...</option>
-              <option value="web">Web Design & Development</option>
-              <option value="audit">Security Audit & Assessment</option>
-              <option value="pentesting">Penetration Testing (Ethical Hacking)</option>
-              <option value="other">IT Consulting & Support</option>
+              <option value="Web Design & Development">Web Design & Development</option>
+              <option value="Security Audit & Assessment">Security Audit & Assessment</option>
+              <option value="Penetration Testing (Ethical Hacking)">Penetration Testing (Ethical Hacking)</option>
+              <option value="IT Consulting & Support">IT Consulting & Support</option>
             </select>
             <span class="focus-line"></span>
           </div>
 
           <div class="form-group">
             <label for="form-message">PROJECT DETAILS / MESSAGE</label>
-            <textarea id="form-message" name="form-message" rows="5" placeholder="Tell us about your project, goals, or what you need assistance with..." required></textarea>
+            <textarea id="form-message" name="q9_projectDetails" rows="5" placeholder="Tell us about your project, goals, or what you need assistance with..." required></textarea>
             <span class="focus-line"></span>
           </div>
 
