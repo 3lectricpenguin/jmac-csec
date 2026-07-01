@@ -391,10 +391,11 @@ import Layout from '../layouts/Layout.astro';
       
       card.innerHTML = `
         <div class="selector-meta">
-          <span class="cat">${challenge.category.toUpperCase()}</span>
+          <span class="cat">NODE 0${challenge.id}</span>
           <span class="pts">${challenge.points} PTS</span>
         </div>
-        <h4 class="selector-title">${challenge.title}</h4>
+        <h4 class="selector-title">${challenge.category}</h4>
+        <div class="selector-subtitle">${challenge.title}</div>
         <div class="selector-footer">
           <span class="selector-status-text">
             ${challenge.solved ? '● SECURED' : '○ DISCONNECTED'}
@@ -1382,10 +1383,19 @@ import Layout from '../layouts/Layout.astro';
 
   .selector-title {
     font-family: var(--font-display);
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 1.05rem;
+    font-weight: 800;
     color: #fff;
-    line-height: 1.3;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
+  }
+
+  .selector-subtitle {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-top: -0.3rem;
   }
 
   .selector-footer {
