@@ -32,6 +32,12 @@ import Layout from '../layouts/Layout.astro';
               <input type="text" id="operator-nickname" placeholder="e.g., Guest_Hacker" maxlength="15" required autocomplete="off" />
               <span class="input-focus-line"></span>
             </div>
+            <div class="input-wrapper">
+              <label for="operator-password">PASSWORD <span class="muted-label">(OPTIONAL - PERSISTS YOUR PROFILE)</span></label>
+              <input type="password" id="operator-password" placeholder="Leave blank to enter as Guest" autocomplete="off" />
+              <span class="input-focus-line"></span>
+            </div>
+            <div class="form-feedback error-text" id="entry-feedback-msg" style="display: none;"></div>
             <button type="submit" class="btn-portal-submit">
               <span>ACCESS WORKSPACE</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -231,6 +237,7 @@ import Layout from '../layouts/Layout.astro';
   ];
 
   // Leaderboard data
+  // Leaderboard data
   interface Hacker {
     name: string;
     points: number;
@@ -239,24 +246,37 @@ import Layout from '../layouts/Layout.astro';
     solvedCount?: number;
     createdAt?: number; // timestamp in ms
     lastActiveAt?: number; // timestamp in ms
+    passwordHash?: string; // SHA-256 hash or empty
   }
 
   // --- DATABASE CONFIGURATION ---
-  // If credentials are provided below, the site connects to a real Supabase database.
-  // Otherwise, it falls back to the anonymous ExtendsClass JSON bin.
-  const SUPABASE_URL = 'https://vttrgucdwwaqndjogahm.supabase.co'; // Paste your Supabase project URL here
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0dHJndWNkd3dhcW5kam9nYWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MjQwMjksImV4cCI6MjA5ODUwMDAyOX0.zzLSIUz9tgW-tBpsZWQertf7yREBLIXcY5s0d-JGlTA'; // Paste your Supabase Anon Key here
+  const SUPABASE_URL = 'https://vttrgucdwwaqndjogahm.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0dHJndWNkd3dhcW5kam9nYWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MjQwMjksImV4cCI6MjA5ODUwMDAyOX0.zzLSIUz9tgW-tBpsZWQertf7yREBLIXcY5s0d-JGlTA';
   const BIN_URL = 'https://extendsclass.com/api/json-storage/bin/bafcada';
   
   let hackers: Hacker[] = [];
+  let playerPasswordHash = ""; // Stores hash of current player's password locally if they configured one
 
   function isSupabaseConfigured() {
     return SUPABASE_URL.trim() !== '' && SUPABASE_ANON_KEY.trim() !== '';
   }
 
-  // Helper to remove any competitor who has remained at 0 points for 24 hours (86,400,000 ms)
+  // Client-side SHA-256 Hashing helper
+  async function hashPassword(password: string): Promise<string> {
+    if (!password) return '';
+    const msgUint8 = new TextEncoder().encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+  }
+
+  // Helper to remove:
+  // 1. Any competitor at 0 points for 24 hours
+  // 2. Guests (no passwordHash) inactive for more than 2 hours (7,200,000 ms)
   function cleanupStaleUsers(scores: Hacker[]): { updatedScores: Hacker[], modified: boolean } {
     const oneDayMs = 24 * 60 * 60 * 1000;
+    const twoHoursMs = 2 * 60 * 60 * 1000;
     const now = Date.now();
     let modified = false;
 
@@ -264,9 +284,14 @@ import Layout from '../layouts/Layout.astro';
       const isZeroPoints = h.points === 0;
       const createdAt = h.createdAt || now;
       const ageMs = now - createdAt;
-      const isStale = isZeroPoints && ageMs > oneDayMs;
+      const isStaleZero = isZeroPoints && ageMs > oneDayMs;
 
-      if (isStale) {
+      const isGuest = !h.passwordHash;
+      const lastActiveAt = h.lastActiveAt || now;
+      const inactiveMs = now - lastActiveAt;
+      const isStaleGuest = isGuest && inactiveMs > twoHoursMs;
+
+      if (isStaleZero || isStaleGuest) {
         modified = true;
         return false;
       }
@@ -279,9 +304,21 @@ import Layout from '../layouts/Layout.astro';
   async function fetchScores() {
     if (isSupabaseConfigured()) {
       try {
-        // Prune stale users: points = 0 AND created_at older than 24 hours
-        const threshold = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?points=eq.0&created_at=lt.${threshold}`, {
+        const now = Date.now();
+        // Prune stale users:
+        // 1. points = 0 AND created_at older than 24 hours
+        const thresholdZero = new Date(now - 24 * 60 * 60 * 1000).toISOString();
+        await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?points=eq.0&created_at=lt.${thresholdZero}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          }
+        });
+
+        // 2. password_hash is null AND last_active_at older than 2 hours
+        const thresholdGuest = new Date(now - 2 * 60 * 60 * 1000).toISOString();
+        await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?password_hash=is.null&last_active_at=lt.${thresholdGuest}`, {
           method: 'DELETE',
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -307,7 +344,8 @@ import Layout from '../layouts/Layout.astro';
             time: Number(row.time),
             solvedCount: Number(row.solved_count),
             createdAt: new Date(row.created_at).getTime(),
-            lastActiveAt: new Date(row.last_active_at).getTime()
+            lastActiveAt: new Date(row.last_active_at).getTime(),
+            passwordHash: row.password_hash || ''
           }));
 
           // Broadcast alert logs
@@ -334,7 +372,7 @@ import Layout from '../layouts/Layout.astro';
           const playerExists = hackers.some(h => nickname && h.name.toLowerCase() === nickname.toLowerCase());
           if (!playerExists && nickname) {
             const solvedCount = challenges.filter(c => c.solved).length;
-            await saveScore(nickname, playerScore, playerTime, solvedCount);
+            await saveScore(nickname, playerScore, playerTime, solvedCount, playerPasswordHash);
           }
 
           updateLeaderboard();
@@ -375,7 +413,7 @@ import Layout from '../layouts/Layout.astro';
           const playerExists = hackers.some(h => nickname && h.name.toLowerCase() === nickname.toLowerCase());
           if (!playerExists && nickname) {
             const solvedCount = challenges.filter(c => c.solved).length;
-            await saveScore(nickname, playerScore, playerTime, solvedCount);
+            await saveScore(nickname, playerScore, playerTime, solvedCount, playerPasswordHash);
           }
 
           updateLeaderboard();
@@ -397,7 +435,7 @@ import Layout from '../layouts/Layout.astro';
     }
   }
 
-  async function saveScore(name: string, points: number, time: number, solvedCount: number) {
+  async function saveScore(name: string, points: number, time: number, solvedCount: number, pwdHash: string = '') {
     if (isSupabaseConfigured()) {
       try {
         // Upsert record (insert or update on conflict of primary key 'name')
@@ -414,6 +452,7 @@ import Layout from '../layouts/Layout.astro';
             points: points,
             time: time,
             solved_count: solvedCount,
+            password_hash: pwdHash || null,
             last_active_at: new Date().toISOString()
           })
         });
@@ -436,7 +475,8 @@ import Layout from '../layouts/Layout.astro';
               time: Number(row.time),
               solvedCount: Number(row.solved_count),
               createdAt: new Date(row.created_at).getTime(),
-              lastActiveAt: new Date(row.last_active_at).getTime()
+              lastActiveAt: new Date(row.last_active_at).getTime(),
+              passwordHash: row.password_hash || ''
             }));
             updateLeaderboard();
           }
@@ -462,6 +502,7 @@ import Layout from '../layouts/Layout.astro';
           existingPlayer.time = time;
           existingPlayer.solvedCount = solvedCount;
           existingPlayer.lastActiveAt = now;
+          existingPlayer.passwordHash = pwdHash || existingPlayer.passwordHash || '';
           if (!existingPlayer.createdAt) {
             existingPlayer.createdAt = now;
           }
@@ -472,7 +513,8 @@ import Layout from '../layouts/Layout.astro';
             time,
             solvedCount,
             createdAt: now,
-            lastActiveAt: now
+            lastActiveAt: now,
+            passwordHash: pwdHash || ''
           });
         }
 
@@ -508,6 +550,8 @@ import Layout from '../layouts/Layout.astro';
   const workspace = document.getElementById('ctf-workspace') as HTMLElement;
   const nicknameForm = document.getElementById('nickname-form') as HTMLFormElement;
   const nicknameInput = document.getElementById('operator-nickname') as HTMLInputElement;
+  const passwordInput = document.getElementById('operator-password') as HTMLInputElement;
+  const entryFeedback = document.getElementById('entry-feedback-msg') as HTMLElement;
   const displayNickname = document.getElementById('display-nickname') as HTMLElement;
   const playerProgress = document.getElementById('player-progress') as HTMLElement;
   const playerPercent = document.getElementById('player-percent') as HTMLElement;
@@ -555,11 +599,13 @@ import Layout from '../layouts/Layout.astro';
     const savedScore = localStorage.getItem('ctf_score');
     const savedTime = localStorage.getItem('ctf_elapsed');
     const savedSolved = localStorage.getItem('ctf_solved_ids');
+    const savedPwdHash = localStorage.getItem('ctf_password_hash') || '';
 
     if (savedNickname) {
       nickname = savedNickname;
       playerScore = parseInt(savedScore || '0');
       playerTime = parseInt(savedTime || '0');
+      playerPasswordHash = savedPwdHash;
       
       const solvedIds = JSON.parse(savedSolved || '[]');
       challenges.forEach(c => {
@@ -572,7 +618,7 @@ import Layout from '../layouts/Layout.astro';
       await startWorkspace();
       
       // Sync local score to database immediately on session load
-      await saveScore(nickname, playerScore, playerTime, solvedIds.length);
+      await saveScore(nickname, playerScore, playerTime, solvedIds.length, playerPasswordHash);
     }
   }
 
@@ -582,20 +628,73 @@ import Layout from '../layouts/Layout.astro';
     const enteredNickname = nicknameInput.value.trim().replace(/[^a-zA-Z0-9_]/g, '');
     if (!enteredNickname) return;
 
+    const enteredPassword = passwordInput.value;
+    const pwdHash = await hashPassword(enteredPassword);
+
+    entryFeedback.style.display = 'none';
+    entryFeedback.textContent = '';
+
     try {
-      const res = await fetch(`${BIN_URL}?nocache=${Date.now()}`, {
-        cache: 'no-store'
-      });
-      const data: Hacker[] = await res.json();
-      const existing = data.find(h => h.name.toLowerCase() === enteredNickname.toLowerCase());
+      let existing: Hacker | undefined = undefined;
 
-      nickname = enteredNickname;
-      localStorage.setItem('ctf_nickname', nickname);
+      // 1. Fetch scores to see if nickname is taken
+      if (isSupabaseConfigured()) {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?name=eq.${enteredNickname}`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Cache-Control': 'no-cache'
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            existing = {
+              name: data[0].name,
+              points: Number(data[0].points),
+              time: Number(data[0].time),
+              passwordHash: data[0].password_hash || '',
+              solvedCount: Number(data[0].solved_count)
+            };
+          }
+        }
+      } else {
+        const res = await fetch(`${BIN_URL}?nocache=${Date.now()}`, {
+          cache: 'no-store'
+        });
+        if (res.ok) {
+          const data: Hacker[] = await res.json();
+          if (Array.isArray(data)) {
+            existing = data.find(h => h.name.toLowerCase() === enteredNickname.toLowerCase());
+          }
+        }
+      }
 
+      // 2. Validate Password / Authenticate
       if (existing) {
+        if (existing.passwordHash && existing.passwordHash.trim() !== '') {
+          if (existing.passwordHash !== pwdHash) {
+            entryFeedback.style.display = 'block';
+            entryFeedback.textContent = '❌ Access Denied: Incorrect password for this operator.';
+            return;
+          }
+        } else {
+          // If profile was Guest, they can claim it with a password now
+          if (pwdHash) {
+            existing.passwordHash = pwdHash;
+          }
+        }
+
+        nickname = enteredNickname;
         playerScore = existing.points;
         playerTime = existing.time;
+        playerPasswordHash = existing.passwordHash || '';
         
+        localStorage.setItem('ctf_nickname', nickname);
+        localStorage.setItem('ctf_password_hash', playerPasswordHash);
+        localStorage.setItem('ctf_score', playerScore.toString());
+
+        // Restore solved challenges based on points
         let accumulated = 0;
         challenges.forEach(c => {
           if (accumulated + c.points <= playerScore) {
@@ -605,25 +704,34 @@ import Layout from '../layouts/Layout.astro';
             c.solved = false;
           }
         });
-        localStorage.setItem('ctf_score', playerScore.toString());
         localStorage.setItem('ctf_solved_ids', JSON.stringify(challenges.filter(c => c.solved).map(c => c.id)));
+        
+        await saveScore(nickname, playerScore, playerTime, challenges.filter(c => c.solved).length, playerPasswordHash);
       } else {
+        nickname = enteredNickname;
         playerScore = 0;
         playerTime = 0;
-        challenges.forEach(c => c.solved = false);
+        playerPasswordHash = pwdHash;
+
+        localStorage.setItem('ctf_nickname', nickname);
+        localStorage.setItem('ctf_password_hash', playerPasswordHash);
         localStorage.setItem('ctf_score', '0');
         localStorage.setItem('ctf_solved_ids', '[]');
         
-        await saveScore(nickname, 0, 0, 0);
+        challenges.forEach(c => c.solved = false);
+
+        await saveScore(nickname, 0, 0, 0, playerPasswordHash);
       }
 
       startTime = Date.now() - (playerTime * 1000);
       await startWorkspace();
       addLog(`[SYSTEM] Operator session initialized for ${nickname}`, 'system');
     } catch (e) {
-      console.error(e);
+      console.error('Login error:', e);
       nickname = enteredNickname;
+      playerPasswordHash = pwdHash;
       localStorage.setItem('ctf_nickname', nickname);
+      localStorage.setItem('ctf_password_hash', playerPasswordHash);
       startTime = Date.now();
       playerScore = 0;
       playerTime = 0;
@@ -638,6 +746,9 @@ import Layout from '../layouts/Layout.astro';
     localStorage.removeItem('ctf_score');
     localStorage.removeItem('ctf_elapsed');
     localStorage.removeItem('ctf_solved_ids');
+    localStorage.removeItem('ctf_password_hash');
+    playerPasswordHash = "";
+    passwordInput.value = "";
     clearInterval(timerInterval);
     
     entryPortal.style.display = 'block';
@@ -673,12 +784,7 @@ import Layout from '../layouts/Layout.astro';
     setInterval(fetchScores, 5000);
 
     // Print active database status
-    if (isSupabaseConfigured()) {
-      addLog(`[SYSTEM] Production DB Link Active: Connected to Supabase Cloud.`, 'success');
-    } else {
-      addLog(`[SYSTEM] Dev DB Link Active: Connected to ExtendsClass Fallback REST Bin.`, 'system');
-      addLog(`[SYSTEM] Paste your Supabase URL & Anon Key at the top of ctf.astro script to upgrade database.`, 'warning');
-    }
+    addLog(`[SYSTEM] Security link initialized. Live synchronization active.`, 'success');
   }
 
   function updateTimerDisplay() {
@@ -1048,8 +1154,8 @@ import Layout from '../layouts/Layout.astro';
       updateProgress();
       updateLeaderboard();
 
-      // Save score to ExtendsClass database
-      await saveScore(nickname, playerScore, playerTime, solvedIds.length);
+      // Save score to database
+      await saveScore(nickname, playerScore, playerTime, solvedIds.length, playerPasswordHash);
       
       // Check if all are solved
       const allSolved = challenges.every(c => c.solved);
@@ -1248,6 +1354,33 @@ import Layout from '../layouts/Layout.astro';
     color: var(--text-muted);
     letter-spacing: 1px;
     margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .muted-label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--accent-green);
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  .form-feedback {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-feedback.error-text {
+    color: #f87171;
+    border-left: 2px solid #ef4444;
+    padding: 0.5rem;
+    background: rgba(239, 68, 68, 0.05);
+    text-align: left;
+    width: 100%;
   }
 
   .input-wrapper input {
